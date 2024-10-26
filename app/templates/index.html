@@ -1,18 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Planner</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <h1>Task List</h1>
-    <ul>
-        {% for task in tasks %}
-            <li>{{ task.title }}</li>
-        {% endfor %}
-    </ul>
-    <form action="{{ url_for('main.add_task') }}" method="POST">
-        <input type="text" name="title" placeholder="New Task">
-        <button type="submit">Add Task</button>
-    </form>
+    <div class="container">
+        <h1 class="mt-4">Task List</h1>
+        <ul class="list-unstyled">
+            {% for task in tasks %}
+                <li class="mb-2">
+                    <strong>{{ task.title }}</strong>
+                    <!-- Trigger Modal Button -->
+                    <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
+                        View Details
+                    </button>
+
+                    <!-- Modal Structure -->
+                    <div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="taskModalLabel{{ task.id }}">{{ task.title }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Description:</strong> {{ task.description }}</p>
+                                    <p><strong>Due Date:</strong> {{ task.due_date }}</p>
+                                    <p><strong>Estimated Time:</strong> {{ task.estimated_time }} mins</p>
+                                    <p><strong>Priority:</strong> {{ task.priority }}</p>
+                                    <p><strong>Status:</strong> {{ task.status }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <form action="{{ url_for('main.add_task') }}" method="POST" class="mt-4">
+            <div class="form-group">
+                <input type="text" name="title" class="form-control" placeholder="New Task" required>
+            </div>
+            <button type="submit" class="btn btn-success">Add Task</button>
+        </form>
+    </div>
 </body>
 </html>
