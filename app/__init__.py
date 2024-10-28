@@ -10,6 +10,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///planner.db'  # Database file will be in your project folder
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'indischeZiegenMilch2024'
     db.init_app(app)
 
     migrate = Migrate(app, db)

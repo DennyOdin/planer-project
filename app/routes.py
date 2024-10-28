@@ -12,26 +12,21 @@ def index():
     tasks = Task.query.all()  # Fetch all tasks
     return render_template('index.html', tasks=tasks)
 
-# Add a new task to the database, through form submission
+
 @main.route('/task/add', methods=['GET', 'POST'])
 def add_task():
     if request.method == 'POST':
         title = request.form['title']
         description = request.form.get('description')
         due_date_str = request.form.get('due_date')
-        
-        if not due_date_str:
-            flash("Due date is required.", "danger")
-            return redirect(url_for('main.index'))
+        due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None  # Allow blank due date
+        estimated_time = request.form.get('estimated_time')
+        priority = request.form.get('priority')
 
-        try:
-            due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
-        except ValueError:
-            flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
-            return redirect(url_for('main.index'))
-        
-        estimated_time = int(request.form.get('estimated_time', 0))
-        priority = int(request.form.get('priority', 1))
+        # Convert to integers if provided, else use defaults
+        estimated_time = int(estimated_time) if estimated_time else None
+        priority = int(priority) if priority else 1
+
         task = Task(
             title=title,
             description=description,
@@ -46,20 +41,28 @@ def add_task():
     return render_template('add_task.html')
 
 # Edit an existing task
-@main.route('/task/edit/<int:task_id>', methods=['GET', 'POST'])
+@main.route('/task/edit/<int:task_id>', methods=['POST'])
 def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
-    if request.method == 'POST':
-        task.title = request.form['title']
-        task.description = request.form.get('description')
-        task.due_date = datetime.strptime(request.form.get('due_date'), '%Y-%m-%d')
-        task.estimated_time = int(request.form.get('estimated_time', 0))
-        task.priority = int(request.form.get('priority', 1))
-        task.status = request.form.get('status')
-        db.session.commit()
-        flash("Task updated successfully!", "success")
-        return redirect(url_for('main.index'))
-    return render_template('edit_task.html', task=task)
+    task.title = request.form['title']
+    task.description = request.form.get('description')
+    
+    due_date_str = request.form.get('due_date')
+    task.due_date = datetime.strptime(due_date_str, '%Y-%m-%d') if due_date_str else None
+
+    estimated_time_str = request.form.get('estimated_time')
+    task.estimated_time = int(estimated_time_str) if estimated_time_str else None
+    
+    priority_str = request.form.get('priority')
+    task.priority = int(priority_str) if priority_str else None
+
+    task.status = request.form.get('status', task.status)
+    
+    db.session.commit()
+    flash("Task updated successfully!", "success")
+    return redirect(url_for('main.index'))
+
+
 
 # Delete a task
 @main.route('/task/delete/<int:task_id>', methods=['POST'])
