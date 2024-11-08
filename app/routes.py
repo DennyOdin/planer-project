@@ -83,3 +83,9 @@ def delete_task(task_id):
     flash("Task deleted successfully!", "success")
     return redirect(url_for('main.index'))
 
+# routes.py
+@main.route('/quadrant_view')
+def quadrant_view():
+    tasks = Task.query.all()  # Adjust this to filter tasks for each quadrant if necessary
+    return render_template('quadrant_view.html', tasks=tasks)
+    

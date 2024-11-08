@@ -1,5 +1,5 @@
-from app import create_app, db
-from app.models import User, Task  # Import models
+# main.py
+from app import create_app
 
 app = create_app()
 

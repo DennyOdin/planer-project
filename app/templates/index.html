@@ -19,6 +19,11 @@
             <a href="{{ url_for('main.index', sort_by='due_date') }}" class="btn btn-outline-secondary btn-sm">Sort by Due Date</a>
         </div>
 
+        <!-- New button to Quadrant View page -->
+        <div class="mb-3">
+            <a href="{{ url_for('main.quadrant_view') }}" class="btn btn-info">Go to Quadrant View</a>
+        </div>
+
         <!-- Add Task Button -->
         <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#addTaskModal">
             Add New Task
