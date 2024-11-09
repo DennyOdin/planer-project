@@ -1,6 +1,6 @@
 # This files function is to define routes for viewing, creating, updating and deleteing tasks
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from .models import Task, db
 from datetime import datetime
 
@@ -83,9 +83,34 @@ def delete_task(task_id):
     flash("Task deleted successfully!", "success")
     return redirect(url_for('main.index'))
 
-# routes.py
 @main.route('/quadrant_view')
 def quadrant_view():
-    tasks = Task.query.all()  # Adjust this to filter tasks for each quadrant if necessary
-    return render_template('quadrant_view.html', tasks=tasks)
-    
+    # Fetch tasks that are unassigned (to display on the right)
+    unassigned_tasks = Task.query.filter_by(quadrant=None).all()
+
+    # Fetch tasks for each quadrant
+    urgent_important_tasks = Task.query.filter_by(quadrant='urgent-important').all()
+    urgent_not_important_tasks = Task.query.filter_by(quadrant='urgent-not-important').all()
+    not_urgent_important_tasks = Task.query.filter_by(quadrant='not-urgent-important').all()
+    not_urgent_not_important_tasks = Task.query.filter_by(quadrant='not-urgent-not-important').all()
+
+    return render_template('quadrant_view.html', 
+                           unassigned_tasks=unassigned_tasks,
+                           urgent_important_tasks=urgent_important_tasks,
+                           urgent_not_important_tasks=urgent_not_important_tasks,
+                           not_urgent_important_tasks=not_urgent_important_tasks,
+                           not_urgent_not_important_tasks=not_urgent_not_important_tasks)
+
+
+@main.route('/update_task_quadrant/<int:task_id>', methods=['POST'])
+def update_task_quadrant(task_id):
+    data = request.get_json()
+    quadrant = data.get('quadrant')
+
+    task = Task.query.get(task_id)
+    if task:
+        task.quadrant = quadrant  # Update the quadrant field
+        db.session.commit()
+        return jsonify({'success': True}), 200
+    return jsonify({'success': False}), 404
+

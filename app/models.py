@@ -25,3 +25,4 @@ class Task(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', back_populates='tasks')
+    quadrant = db.Column(db.String(50), nullable=True)

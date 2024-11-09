@@ -1,45 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Quadrant View</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends 'layout.html' %}
 
-    <h1>Task Management - Four Quadrant View</h1>
+{% block title %}
+Quadrant View
+{% endblock %}
 
-    <div class="quadrant-container">
-        <div class="quadrant" id="urgent-important">
-            <h2>Urgent & Important</h2>
-            <div class="task-list">
-                <!-- Tasks will go here -->
+{% block main %}
+<div class="row">
+    <!-- Quadrant View: Two-thirds width -->
+    <div class="col-md-8">
+        <h2>Task Management - Four Quadrant View</h2>
+        <div class="quadrant-container">
+            <div class="quadrant" id="urgent-important">
+                <h3>Urgent & Important</h3>
+                <div class="task-list" id="urgent-important-list">
+                    {% for task in urgent_important_tasks %}
+                        <div class="task-item" draggable="true" data-task-id="{{ task.id }}">
+                            <strong>{{ task.title }}</strong> - {{ task.status }} - Priority: {{ task.priority }}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
-        <div class="quadrant" id="urgent-not-important">
-            <h2>Urgent & Not Important</h2>
-            <div class="task-list">
-                <!-- Tasks will go here -->
+            <div class="quadrant" id="urgent-not-important">
+                <h3>Urgent & Not Important</h3>
+                <div class="task-list" id="urgent-not-important-list">
+                    {% for task in urgent_not_important_tasks %}
+                        <div class="task-item" draggable="true" data-task-id="{{ task.id }}">
+                            <strong>{{ task.title }}</strong> - {{ task.status }} - Priority: {{ task.priority }}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
-        <div class="quadrant" id="not-urgent-important">
-            <h2>Not Urgent & Important</h2>
-            <div class="task-list">
-                <!-- Tasks will go here -->
+            <div class="quadrant" id="not-urgent-important">
+                <h3>Not Urgent & Important</h3>
+                <div class="task-list" id="not-urgent-important-list">
+                    {% for task in not_urgent_important_tasks %}
+                        <div class="task-item" draggable="true" data-task-id="{{ task.id }}">
+                            <strong>{{ task.title }}</strong> - {{ task.status }} - Priority: {{ task.priority }}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
-        <div class="quadrant" id="not-urgent-not-important">
-            <h2>Not Urgent & Not Important</h2>
-            <div class="task-list">
-                <!-- Tasks will go here -->
+            <div class="quadrant" id="not-urgent-not-important">
+                <h3>Not Urgent & Not Important</h3>
+                <div class="task-list" id="not-urgent-not-important-list">
+                    {% for task in not_urgent_not_important_tasks %}
+                        <div class="task-item" draggable="true" data-task-id="{{ task.id }}">
+                            <strong>{{ task.title }}</strong> - {{ task.status }} - Priority: {{ task.priority }}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 
-</body>
-</html>
-    
+    <!-- Full Task List: One-third width -->
+    <div class="col-md-4">
+        <h2>Unassigned Tasks</h2>
+        <ul class="list-group" id="unassigned-task-list">
+            {% for task in unassigned_tasks %}
+            <li class="list-group-item task-item" draggable="true" data-task-id="{{ task.id }}">
+                <strong>{{ task.title }}</strong> - {{ task.status }} - Priority: {{ task.priority }}
+            </li>
+        {% endfor %}        
+        </ul>
+    </div>
+</div>
+{% endblock %}

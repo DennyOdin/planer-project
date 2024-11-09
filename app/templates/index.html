@@ -1,150 +1,144 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Planner</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1 class="mt-4">Task List</h1>
+{% extends 'layout.html' %}
 
-        <!-- Sorting Links -->
-        <div class="mb-3">
-            <a href="{{ url_for('main.index', sort_by='status') }}" class="btn btn-outline-secondary btn-sm">Sort by Status</a>
-            <a href="{{ url_for('main.index', sort_by='priority') }}" class="btn btn-outline-secondary btn-sm">Sort by Priority</a>
-            <a href="{{ url_for('main.index', sort_by='due_date') }}" class="btn btn-outline-secondary btn-sm">Sort by Due Date</a>
-        </div>
+{% block title %}
+Main page
+{% endblock %}
 
-        <!-- New button to Quadrant View page -->
-        <div class="mb-3">
-            <a href="{{ url_for('main.quadrant_view') }}" class="btn btn-info">Go to Quadrant View</a>
-        </div>
+{% block main %}
+<div class="container">
+    <h1 class="mt-4">Task List</h1>
 
-        <!-- Add Task Button -->
-        <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#addTaskModal">
-            Add New Task
-        </button>
+    <!-- Sorting Links -->
+    <div class="mb-3">
+        <a href="{{ url_for('main.index', sort_by='status') }}" class="btn btn-outline-secondary btn-sm">Sort by Status</a>
+        <a href="{{ url_for('main.index', sort_by='priority') }}" class="btn btn-outline-secondary btn-sm">Sort by Priority</a>
+        <a href="{{ url_for('main.index', sort_by='due_date') }}" class="btn btn-outline-secondary btn-sm">Sort by Due Date</a>
+    </div>
 
-        <!-- Add Task Modal -->
-        <div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form action="{{ url_for('main.add_task') }}" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addTaskModalLabel">Add New Task</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+    <!-- New button to Quadrant View page -->
+    <div class="mb-3">
+        <a href="{{ url_for('main.quadrant_view') }}" class="btn btn-info">Go to Quadrant View</a>
+    </div>
+
+    <!-- Add Task Button -->
+    <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#addTaskModal">
+        Add New Task
+    </button>
+
+    <!-- Add Task Modal -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" role="dialog" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ url_for('main.add_task') }}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addTaskModalLabel">Add New Task</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="title">Title:</label>
+                            <input type="text" name="title" class="form-control" required>
                         </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="title">Title:</label>
-                                <input type="text" name="title" class="form-control" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="description">Description:</label>
-                                <textarea name="description" class="form-control" placeholder="- - -"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="due_date">Due Date:</label>
-                                <input type="date" name="due_date" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="estimated_time">Estimated Time (minutes):</label>
-                                <input type="number" name="estimated_time" class="form-control" placeholder="- - -">
-                            </div>
-                            <div class="form-group">
-                                <label for="priority">Priority:</label>
-                                <input type="number" name="priority" class="form-control" min="1" max="5" placeholder="- - -">
-                            </div>
-                            <div class="form-group">
-                                <label for="status">Status:</label>
-                                <select name="status" class="form-control">
-                                    <option value="to do">To Do</option>
-                                    <option value="doing">Doing</option>
-                                    <option value="done">Done</option>
-                                </select>
-                            </div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea name="description" class="form-control" placeholder="- - -"></textarea>
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Add Task</button>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <div class="form-group">
+                            <label for="due_date">Due Date:</label>
+                            <input type="date" name="due_date" class="form-control">
                         </div>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <label for="estimated_time">Estimated Time (minutes):</label>
+                            <input type="number" name="estimated_time" class="form-control" placeholder="- - -">
+                        </div>
+                        <div class="form-group">
+                            <label for="priority">Priority:</label>
+                            <input type="number" name="priority" class="form-control" min="1" max="5" placeholder="- - -">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select name="status" class="form-control">
+                                <option value="to do">To Do</option>
+                                <option value="doing">Doing</option>
+                                <option value="done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add Task</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
         </div>
-
-        <ul class="list-unstyled">
-            {% for task in tasks %}
-                <li class="mb-2">
-                    <strong>{{ task.title }}</strong>
-                    <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
-                        View/Edit Details
-                    </button>
-
-                    <!-- Existing Modal Structure for Viewing and Editing -->
-<div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form action="{{ url_for('main.edit_task', task_id=task.id) }}" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="taskModalLabel{{ task.id }}">{{ task.title }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="title">Title:</label>
-                        <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description:</label>
-                        <textarea name="description" class="form-control">{{ task.description or '' }}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="due_date">Due Date:</label>
-                        <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="estimated_time">Estimated Time (minutes):</label>
-                        <input type="number" name="estimated_time" class="form-control" value="{{ task.estimated_time or '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="priority">Priority:</label>
-                        <input type="number" name="priority" class="form-control" min="1" max="5" value="{{ task.priority or '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Status:</label>
-                        <select name="status" class="form-control">
-                            <option value="to do" {% if task.status == 'to do' %}selected{% endif %}>To Do</option>
-                            <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>Doing</option>
-                            <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    
-                    <!-- Form for Deletion -->
-                    <form action="{{ url_for('main.delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete Task</button>
-                    </form>
-                </div>
-            </form>
-        </div>
     </div>
+
+    <ul class="list-unstyled">
+        {% for task in tasks %}
+            <li class="mb-2">
+                <strong>{{ task.title }}</strong>
+                <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
+                    View/Edit Details
+                </button>
+
+                <!-- Modal for Viewing and Editing -->
+                <div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="{{ url_for('main.edit_task', task_id=task.id) }}" method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="taskModalLabel{{ task.id }}">{{ task.title }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="title">Title:</label>
+                                        <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description:</label>
+                                        <textarea name="description" class="form-control">{{ task.description or '' }}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="due_date">Due Date:</label>
+                                        <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="estimated_time">Estimated Time (minutes):</label>
+                                        <input type="number" name="estimated_time" class="form-control" value="{{ task.estimated_time or '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="priority">Priority:</label>
+                                        <input type="number" name="priority" class="form-control" min="1" max="5" value="{{ task.priority or '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="status">Status:</label>
+                                        <select name="status" class="form-control">
+                                            <option value="to do" {% if task.status == 'to do' %}selected{% endif %}>To Do</option>
+                                            <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>Doing</option>
+                                            <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    
+                                    <!-- Form for Deletion -->
+                                    <form action="{{ url_for('main.delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger">Delete Task</button>
+                                    </form>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
-
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</body>
-</html>
+{% endblock %}
