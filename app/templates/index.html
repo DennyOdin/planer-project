@@ -129,9 +129,7 @@ Main page
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                     
                                     <!-- Form for Deletion -->
-                                    <form action="{{ url_for('main.delete_task', task_id=task.id) }}" method="POST" style="display:inline;">
-                                        <button type="submit" class="btn btn-danger">Delete Task</button>
-                                    </form>
+                                    <button type="button" class="btn btn-danger" onclick="deleteTask({{ task.id }}, () => $('#taskModal{{ task.id }}').modal('hide'))">Delete Task</button>
                                 </div>
                             </form>
                         </div>
@@ -141,4 +139,31 @@ Main page
         {% endfor %}
     </ul>
 </div>
+
+<script>
+// Function to delete task
+function deleteTask(taskId, callback) {
+    fetch(`/task/delete/${taskId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Task deleted successfully!");
+            if (callback) callback();
+            window.location.reload();  // Force a page reload after successful deletion
+        } else {
+            console.error("Failed to delete task.");
+            alert("Failed to delete task. Please try again.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
+</script>
 {% endblock %}

@@ -74,15 +74,6 @@ def edit_task(task_id):
     flash("Task updated successfully!", "success")
     return redirect(url_for('main.index'))
 
-#delete a task from the db
-@main.route('/task/delete/<int:task_id>', methods=['POST'])
-def delete_task(task_id):
-    task = Task.query.get_or_404(task_id)
-    db.session.delete(task)
-    db.session.commit()
-    flash("Task deleted successfully!", "success")
-    return redirect(url_for('main.index'))
-
 @main.route('/quadrant_view')
 def quadrant_view():
     # Fetch tasks that are unassigned (to display on the right)
@@ -113,4 +104,13 @@ def update_task_quadrant(task_id):
         db.session.commit()
         return jsonify({'success': True}), 200
     return jsonify({'success': False}), 404
+
+# delete a task from the db
+@main.route('/task/delete/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    flash("Task deleted successfully!", "success")
+    return jsonify({'success': True}), 200
 
