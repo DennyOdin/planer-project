@@ -114,3 +114,83 @@ def delete_task(task_id):
     flash("Task deleted successfully!", "success")
     return jsonify({'success': True}), 200
 
+#---Calendar---
+@main.route('/calendar', methods=['GET'])
+def calendar_view():
+    tasks = Task.query.all()  # Adjust for user-specific tasks later
+    return render_template('calendar.html', tasks=tasks)
+
+@main.route('/calendar/day/<string:date>', methods=['GET'])
+def calendar_day_view(date):
+    """
+    Display tasks for the selected day and show unassigned tasks.
+    """
+    selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+    tasks = Task.query.filter_by(calendar_date=selected_date).all()
+    unassigned_tasks = Task.query.filter(Task.calendar_date.is_(None)).all()
+
+    return render_template('calendar.html', 
+                           selected_date=selected_date, 
+                           tasks=tasks, 
+                           unassigned_tasks=unassigned_tasks)
+
+@main.route('/calendar/assign_task', methods=['POST'])
+def assign_task_to_calendar():
+    """
+    Save task to a specific time slot on the calendar.
+    """
+    data = request.get_json()
+    task_id = data.get('task_id')
+    calendar_date = data.get('calendar_date')
+    time_slot = data.get('time_slot')
+
+    task = Task.query.get(task_id)
+    if task:
+        task.calendar_date = datetime.strptime(calendar_date, '%Y-%m-%d').date()
+        task.estimated_time = time_slot  # Use `estimated_time` to represent hour
+        db.session.commit()
+        return jsonify({'success': True}), 200
+
+    return jsonify({'success': False, 'error': 'Task not found'}), 404
+
+@main.route('/calendar/unselect', methods=['GET'])
+def unselect_day():
+    """
+    Return to the full calendar view.
+    """
+    tasks = Task.query.all()  # Adjust for user-specific tasks later
+    return render_template('calendar.html', tasks=tasks)
+
+@main.route('/task/update/<int:task_id>', methods=['POST'])
+def update_task(task_id):
+    data = request.get_json()
+    day = data.get('day')
+    hour = data.get('hour')
+
+    # Update the task in the database
+    task = Task.query.get(task_id)
+    if task:
+        task.assigned_day = int(day)
+        task.assigned_hour = int(hour)
+        db.session.commit()
+        return jsonify({"message": "Task updated successfully!"}), 200
+    else:
+        return jsonify({"error": "Task not found!"}), 404
+    
+
+@main.route('/tasks', methods=['GET'])
+def get_tasks():
+    day_index = request.args.get('day', type=int)  # Get day index (0 = Monday)
+    
+    if day_index is not None:
+        # Calculate the specific date for the selected day in the current week
+        today = datetime.utcnow().date()
+        start_of_week = today - timedelta(days=today.weekday())  # Monday of current week
+        selected_date = start_of_week + timedelta(days=day_index)
+
+        # Query tasks for the selected date
+        tasks = Task.query.filter_by(calendar_date=selected_date).all()
+
+        return jsonify({"tasks": [{"id": task.id, "title": task.title} for task in tasks]})
+
+    return jsonify({"error": "Invalid day index"}), 400

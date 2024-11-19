@@ -50,7 +50,7 @@ Main page
                             <input type="date" name="due_date" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="estimated_time">Estimated Time (minutes):</label>
+                            <label for="estimated_time">Estimated Time (hours):</label>
                             <input type="number" name="estimated_time" class="form-control" placeholder="- - -">
                         </div>
                         <div class="form-group">
@@ -108,7 +108,7 @@ Main page
                                         <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
                                     </div>
                                     <div class="form-group">
-                                        <label for="estimated_time">Estimated Time (minutes):</label>
+                                        <label for="estimated_time">Estimated Time (hours):</label>
                                         <input type="number" name="estimated_time" class="form-control" value="{{ task.estimated_time or '' }}">
                                     </div>
                                     <div class="form-group">

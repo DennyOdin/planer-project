@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    {% include 'layout.html' %}
+
+    <div class="calendar-container">
+        <!-- Weekly Calendar Grid -->
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- Header Row for Weekdays -->
+            <div class="header-row">
+                <div class="time-slot-header"></div> <!-- Empty corner cell -->
+                {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+                <div class="weekday-header" data-day="{{ loop.index0 }}">
+                    {{ day }}
+                    <button class="select-day-btn" data-day="{{ loop.index0 }}">Select</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Rows for Time Slots -->
+            {% for hour in range(24) %}
+            <div class="time-row">
+                <div class="time-slot">{{ hour }}:00</div>
+                {% for day in range(7) %}
+                <div class="calendar-slot" 
+                     data-hour="{{ hour }}" 
+                     data-day="{{ day }}"></div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Sidebar for Unassigned Tasks -->
+        <div class="unassigned-tasks-container hidden" id="unassigned-tasks-container">
+            <h3>Unassigned Tasks</h3>
+            <div id="unassigned-tasks">
+                {% for task in tasks if not task.assigned_day %}
+                <div class="task-item" 
+                     draggable="true" 
+                     data-task-id="{{ task.id }}">
+                    <span class="task-title">{{ task.title }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <button id="exit-single-day-view" class="hidden">Exit Single Day View</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+</body>
+</html>
