@@ -1,57 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-<body>
-    {% include 'layout.html' %}
+{% extends 'layout.html' %}
 
-    <div class="calendar-container">
-        <!-- Weekly Calendar Grid -->
-        <div class="calendar-grid" id="calendar-grid">
-            <!-- Header Row for Weekdays -->
-            <div class="header-row">
-                <div class="time-slot-header"></div> <!-- Empty corner cell -->
-                {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
-                <div class="weekday-header" data-day="{{ loop.index0 }}">
-                    {{ day }}
-                    <button class="select-day-btn" data-day="{{ loop.index0 }}">Select</button>
+{% block title %}Calendar View{% endblock %}
+
+{% block head %}
+<style>
+    .calendar-container {
+        display: flex;
+        gap: 20px;
+        margin: 20px;
+        height: calc(100vh - 100px);
+    }
+
+    .calendar-grid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        background: white;
+    }
+
+    .header-row {
+        display: flex;
+        background: #f8f9fa;
+    }
+
+    .time-slot-header {
+        width: 80px;
+        border-right: 1px solid #ddd;
+    }
+
+    .weekday-header {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-right: 1px solid #ddd;
+    }
+
+    .time-row {
+        display: flex;
+        min-height: 60px;
+    }
+
+    .time-slot {
+        width: 80px;
+        padding: 5px;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .calendar-slot {
+        flex: 1;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 5px;
+        min-height: 60px;
+    }
+
+    .task-list-container {
+        width: 300px;
+        padding: 20px;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .task-item {
+        padding: 10px;
+        margin: 5px 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: move;
+    }
+
+    .drag-over {
+        background-color: #e9ecef;
+    }
+
+    .dragging {
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="calendar-container">
+    <div class="calendar-grid" id="calendar-grid">
+        <div class="header-row">
+            <div class="time-slot-header"></div>
+            {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+            <div class="weekday-header" data-day="{{ loop.index0 }}">{{ day }}</div>
+            {% endfor %}
+        </div>
+        {% for hour in range(24) %}
+        <div class="time-row">
+            <div class="time-slot">{{ hour }}:00</div>
+            {% for day in range(7) %}
+            <div class="calendar-slot" 
+                 data-hour="{{ hour }}" 
+                 data-day="{{ day }}" 
+                 ondrop="handleDrop(event)" 
+                 ondragover="handleDragOver(event)">
+                {% for task in tasks if task.assigned_day == day and task.assigned_hour == hour %}
+                <div class="task-item" draggable="true" 
+                     data-task-id="{{ task.id }}" 
+                     ondragstart="handleDragStart(event)">
+                    {{ task.title }}
                 </div>
-                {% endfor %}
-            </div>
-
-            <!-- Rows for Time Slots -->
-            {% for hour in range(24) %}
-            <div class="time-row">
-                <div class="time-slot">{{ hour }}:00</div>
-                {% for day in range(7) %}
-                <div class="calendar-slot" 
-                     data-hour="{{ hour }}" 
-                     data-day="{{ day }}"></div>
                 {% endfor %}
             </div>
             {% endfor %}
         </div>
-
-        <!-- Sidebar for Unassigned Tasks -->
-        <div class="unassigned-tasks-container hidden" id="unassigned-tasks-container">
-            <h3>Unassigned Tasks</h3>
-            <div id="unassigned-tasks">
-                {% for task in tasks if not task.assigned_day %}
-                <div class="task-item" 
-                     draggable="true" 
-                     data-task-id="{{ task.id }}">
-                    <span class="task-title">{{ task.title }}</span>
-                </div>
-                {% endfor %}
-            </div>
-            <button id="exit-single-day-view" class="hidden">Exit Single Day View</button>
-        </div>
+        {% endfor %}
     </div>
 
-    <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
-</body>
-</html>
+    <div class="task-list-container" id="task-list-container">
+        <h4>Unassigned Tasks</h4>
+        <div id="unassigned-tasks">
+            {% for task in tasks if task.assigned_day is none %}
+            <div class="task-item" draggable="true" 
+                 data-task-id="{{ task.id }}" 
+                 ondragstart="handleDragStart(event)">
+                {{ task.title }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

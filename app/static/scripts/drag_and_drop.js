@@ -64,4 +64,3 @@ function deleteTask(taskId, callback) {
         alert("An error occurred. Please try again.");
     });
 }
-

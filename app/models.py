@@ -41,6 +41,3 @@ class Task(db.Model):
     def __repr__(self):
         return f"<Task {self.id} - {self.title}>"
 
-
-# Example of future-proofing: If we add more entities for groceries or events, 
-# we can extend these models similarly.
