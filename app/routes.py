@@ -156,10 +156,19 @@ def update_task(task_id):
 
     task = Task.query.get(task_id)
     if task:
-        task.calendar_date = datetime.strptime(calendar_date, '%Y-%m-%d').date()
-        task.estimated_time = time_slot
-        db.session.commit()
-        return jsonify({"message": "Task updated successfully!"}), 200
+        try:
+            if calendar_date:
+                task.calendar_date = datetime.strptime(calendar_date, '%Y-%m-%d').date()
+            
+            # Safely handle time_slot
+            if time_slot is not None:
+                task.estimated_time = max(1, int(time_slot))  # Ensure at least 1
+            
+            db.session.commit()
+            return jsonify({"message": "Task updated successfully!"}), 200
+        except (ValueError, TypeError) as e:
+            db.session.rollback()
+            return jsonify({"error": f"Invalid update data: {str(e)}"}), 400
 
     return jsonify({"error": "Task not found!"}), 404
 
@@ -172,9 +181,32 @@ def assign_task_to_calendar():
 
     task = Task.query.get(task_id)
     if task:
-        task.assigned_day = int(day)
-        task.assigned_hour = int(hour)
-        db.session.commit()
-        return jsonify({'success': True}), 200
+        try:
+            # Convert day and hour, handling None values
+            task.assigned_day = int(day) if day is not None else None
+            task.assigned_hour = int(hour) if hour is not None else None
+            
+            db.session.commit()
+            return jsonify({'success': True}), 200
+        except (ValueError, TypeError) as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': f'Invalid assignment data: {str(e)}'}), 400
 
     return jsonify({'success': False, 'error': 'Task not found'}), 404
+
+@main.route('/task/update-duration/<int:task_id>', methods=['POST'])
+def update_task_duration(task_id):
+    task = Task.query.get_or_404(task_id)
+    new_duration = request.json.get('estimated_time')
+    
+    try:
+        # Ensure new_duration is a positive integer
+        if new_duration is not None and new_duration > 0:
+            task.estimated_time = int(new_duration)
+            db.session.commit()
+            return jsonify({"success": True}), 200
+        
+        return jsonify({"success": False, "error": "Invalid duration"}), 400
+    except (ValueError, TypeError) as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": f"Error updating duration: {str(e)}"}), 400

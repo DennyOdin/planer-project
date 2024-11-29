@@ -17,7 +17,7 @@ class Task(db.Model):
     title = db.Column(db.String(100), nullable=False)  # Task title (required)
     description = db.Column(db.String(500))  # Optional description
     due_date = db.Column(db.DateTime, nullable=True)  # Optional due date
-    estimated_time = db.Column(db.Integer, nullable=True)  # Optional duration in minutes
+    estimated_time = db.Column(db.Integer, default="1", nullable=False)  # Optional duration in minutes
     priority = db.Column(db.Integer, CheckConstraint('priority BETWEEN 1 AND 5'), nullable=True)  # 1 to 5
     status = db.Column(db.Enum("to do", "doing", "done"), default="to do", nullable=False)  # Default: 'to do'
     reminder = db.Column(db.DateTime, nullable=True)  # Optional reminder time

@@ -68,11 +68,19 @@ h2 {
 }
 
 .task-list-container {
-    width: 300px;
-    padding: 20px;
-    background: #f8f9fa;
+    width: 250px;
+    background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
+    padding: 15px;
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.task-list-container h4 {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .hidden {
@@ -81,16 +89,16 @@ h2 {
 
 /* Task Item */
 .task-item {
-    padding: 10px;
-    margin: 5px 0;
-    background: white;
+    background-color: #e6f3ff;
     border: 1px solid #ddd;
     border-radius: 4px;
+    padding: 5px;
+    margin: 3px;
     cursor: move;
 }
 
 .task-item:hover {
-    background-color: #f0f8ff;
+    background-color: #dceeff;
 }
 
 .task-item:active {
@@ -109,54 +117,62 @@ h2 {
 /* Calendar */
 .calendar-container {
     display: flex;
+    height: 100vh;
     gap: 20px;
-    margin: 20px;
-    height: calc(100vh - 100px);
+    padding: 20px;
 }
 
 .calendar-grid {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: auto repeat(7, 1fr);
+    grid-auto-rows: min-content;
     border: 1px solid #ddd;
-    background: white;
+    background: #fff;
+    overflow: auto;
 }
 
 .header-row {
-    display: flex;
+    display: contents;
     background: #f8f9fa;
 }
 
 .time-slot-header {
     width: 80px;
+    background-color: #f0f0f0;
     border-right: 1px solid #ddd;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
 }
 
 .weekday-header {
-    flex: 1;
-    padding: 10px;
+    background-color: #f8f9fa;
     text-align: center;
+    font-weight: bold;
+    padding: 10px;
     border-right: 1px solid #ddd;
 }
 
 .time-row {
-    display: flex;
-    min-height: 60px;
+    display: contents;
+    min-height: 40px;
 }
 
 .time-slot {
     width: 80px;
-    padding: 5px;
+    text-align: right;
+    padding: 5px 10px;
     border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
+    background-color: #f0f0f0;
 }
 
 .calendar-slot {
     flex: 1;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
-    padding: 5px;
     min-height: 60px;
+    padding: 5px;
 }
 
 
@@ -225,16 +241,21 @@ h2 {
     min-height: 100px;
 }
 
-.task-item {
-    padding: 5px;
-    margin: 5px 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: move;
+
+/* Resizable Task Styling */
+.task-item.resizable {
+    position: relative;
+    height: auto;
 }
 
-/* Task Item Hover */
-.task-item:hover {
-    background-color: #f0f8ff;
+/* Handle for Dragging the Bottom Edge */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background-color: #ccc;
+    cursor: ns-resize;
+    z-index: 10;
 }
