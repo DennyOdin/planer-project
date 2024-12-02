@@ -89,12 +89,14 @@ h2 {
 
 /* Task Item */
 .task-item {
-    background-color: #e6f3ff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background-color: #f0f0f0;
     padding: 5px;
-    margin: 3px;
-    cursor: move;
+    border-radius: 4px;
 }
 
 .task-item:hover {
@@ -168,11 +170,13 @@ h2 {
 }
 
 .calendar-slot {
+    position: relative;
     flex: 1;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     min-height: 60px;
     padding: 5px;
+    overflow: hidden;
 }
 
 
@@ -241,7 +245,6 @@ h2 {
     min-height: 100px;
 }
 
-
 /* Resizable Task Styling */
 .task-item.resizable {
     position: relative;
@@ -254,8 +257,25 @@ h2 {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 5px;
-    background-color: #ccc;
+    height: 10px;
+    background: rgba(0,0,0,0.2);
     cursor: ns-resize;
+}
+
+.multi-slot-task {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
+}
+
+.occupied-by-task {
+    pointer-events: none;
+}
+
+#unassigned-tasks .task-item {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
 }

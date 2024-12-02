@@ -14,49 +14,68 @@
         </div>
 
         <!-- Time Slots (6 AM to 11 PM) -->
-        {% for hour in range(6, 24) %}
-        <div class="time-row">
-            <div class="time-slot">{{ hour }}:00</div>
-            {% for day in range(7) %}
-            <div class="calendar-slot" 
-                 data-hour="{{ hour }}" 
-                 data-day="{{ day }}" 
-                 ondrop="handleDrop(event)" 
-                 ondragover="handleDragOver(event)">
-                {% for task in tasks %}
-                {% if task.assigned_day == day and task.assigned_hour == hour %}
-                <div class="task-item resizable" 
-                     data-task-id="{{ task.id }}" 
-                     data-estimated-time="{{ task.estimated_time }}" 
-                     style="height: {{ task.estimated_time * 50 }}px;">
-                    {{ task.title }}
-                    <div class="resize-handle"></div>
-                </div>
-                {% endif %}
-                {% endfor %}
+    {% for hour in range(6, 24) %}
+    <div class="time-row">
+        <div class="time-slot">{{ hour }}:00</div>
+        {% for day in range(7) %}
+        <div class="calendar-slot" 
+             data-hour="{{ hour }}" 
+             data-day="{{ day }}"
+             style="position: relative; min-height: 50px;">
+            {% for task in tasks %}
+            {% if task.assigned_day == day and task.assigned_hour == hour %}
+            <div class="task-item" 
+                 draggable="true"
+                 data-task-id="{{ task.id }}" 
+                 data-estimated-time="{{ task.estimated_time * 50 }}" 
+                 style="height: {{ task.estimated_time * 50 }}px; 
+                        position: absolute; 
+                        top: 0; 
+                        left: 0; 
+                        right: 0; 
+                        z-index: 10;">
+                {{ task.title }}
+                <div class="resize-handle" 
+                     style="position: absolute; 
+                            bottom: 0; 
+                            left: 0; 
+                            right: 0; 
+                            height: 10px; 
+                            background: rgba(0,0,0,0.2); 
+                            cursor: ns-resize;"></div>
             </div>
+            {% endif %}
             {% endfor %}
         </div>
         {% endfor %}
     </div>
+    {% endfor %}
+</div>
 
-    <!-- Unassigned Tasks -->
-    <div class="task-list-container" id="task-list-container">
-        <h4>Unassigned Tasks</h4>
-        <div id="unassigned-tasks">
-            {% for task in tasks %}
-                {% if task.assigned_day is not none and task.assigned_hour is not none %}
-                    <div class="task-item resizable" 
-                        data-task-id="{{ task.id }}" 
-                        data-estimated-time="{{ task.estimated_time or 1 }}" 
-                        style="height: {{ (task.estimated_time or 1) * 50 }}px;">
-                        {{ task.title }}
-                        <div class="resize-handle"></div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+<!-- Unassigned Tasks -->
+<div class="task-list-container" id="task-list-container">
+    <h4>Unassigned Tasks</h4>
+    <div id="unassigned-tasks">
+        {% for task in unassigned_tasks %}
+        <div class="task-item" 
+             draggable="true" 
+             data-task-id="{{ task.id }}" 
+             data-estimated-time="{{ (task.estimated_time or 1) * 50 }}" 
+             style="height: {{ (task.estimated_time or 1) * 50 }}px;">
+            {{ task.title }}
+            <div class="resize-handle" 
+                 style="position: absolute; 
+                        bottom: 0; 
+                        left: 0; 
+                        right: 0; 
+                        height: 10px; 
+                        background: rgba(0,0,0,0.2); 
+                        cursor: ns-resize;"></div>
         </div>
+        {% endfor %}
     </div>
+</div>
+    
 </div>
 
 <script src="{{ url_for('static', filename='scripts/calendar.js') }}"></script>

@@ -121,7 +121,8 @@ def calendar_view():
     Display the full calendar with all tasks.
     """
     tasks = Task.query.all()  # Adjust for user-specific tasks later
-    return render_template('calendar.html', tasks=tasks)
+    unassigned_tasks = Task.query.filter(Task.assigned_day.is_(None), Task.assigned_hour.is_(None)).all()
+    return render_template('calendar.html', tasks=tasks, unassigned_tasks=unassigned_tasks)
 
 @main.route('/calendar/day/<string:date>', methods=['GET'])
 def calendar_day_view(date):
