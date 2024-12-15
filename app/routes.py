@@ -1,7 +1,7 @@
 # This files function is to define routes for viewing, creating, updating and deleteing tasks
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from .models import Task, db
+from sqlalchemy.orm.exc import NoResultFound  # Add this import
+from .models import Task, db, Prefab, PrefabTask
 from datetime import datetime
 
 main = Blueprint('main', __name__)
@@ -211,3 +211,108 @@ def update_task_duration(task_id):
     except (ValueError, TypeError) as e:
         db.session.rollback()
         return jsonify({"success": False, "error": f"Error updating duration: {str(e)}"}), 400
+    
+@main.route('/prefabs', methods=['GET', 'POST'])
+def prefabs():
+    if request.method == 'POST':
+        # Use request.get_json() for JSON data
+        data = request.get_json()
+        
+        # Validate input data
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided'}), 400
+        
+        # Check if required fields are present
+        if not data.get('name'):
+            return jsonify({'success': False, 'message': 'Prefab name is required'}), 400
+        
+        # Create new prefab
+        prefab = Prefab(
+            name=data['name'], 
+            description=data.get('description', '')
+        )
+
+        # Create prefab tasks
+        for task_data in data.get('tasks', []):
+            prefab_task = PrefabTask(
+                title=task_data.get('title', ''),
+                description=task_data.get('description', ''),
+                estimated_time=int(task_data.get('estimated_time', 1)),
+                priority=int(task_data.get('priority', 3))  # Default to medium priority
+            )
+            prefab.tasks.append(prefab_task)
+
+        try:
+            db.session.add(prefab)
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Prefab created successfully.'}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': str(e)}), 500
+
+    # For GET, return all prefabs
+    prefabs = Prefab.query.all()
+    return render_template('prefabs.html', prefabs=prefabs)
+
+@main.route('/prefabs/<int:prefab_id>', methods=['GET'])
+def get_prefab(prefab_id):
+    """Retrieve details of a specific prefab"""
+    try:
+        prefab = Prefab.query.get_or_404(prefab_id)
+        return jsonify({
+            'id': prefab.id,
+            'name': prefab.name,
+            'description': prefab.description,
+            'tasks': [
+                {
+                    'title': task.title,
+                    'description': task.description,
+                    'priority': task.priority,
+                    'estimated_time': task.estimated_time
+                } for task in prefab.tasks
+            ]
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 404
+
+@main.route('/apply_prefab/<int:prefab_id>', methods=['POST'])
+def apply_prefab(prefab_id):
+    """Apply a prefab to create tasks"""
+    try:
+        # Retrieve the prefab
+        prefab = Prefab.query.get_or_404(prefab_id)
+
+        # Create tasks from prefab
+        created_tasks = []
+        for prefab_task in prefab.tasks:
+            task = Task(
+                title=prefab_task.title,
+                description=prefab_task.description,
+                estimated_time=prefab_task.estimated_time,
+                priority=prefab_task.priority,
+                status="to do"  # Set default status
+            )
+            db.session.add(task)
+            created_tasks.append(task)
+
+        db.session.commit()
+        return jsonify({
+            'success': True, 
+            'message': f'{len(created_tasks)} tasks created from prefab',
+            'tasks_created': len(created_tasks)
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@main.route('/delete_prefab/<int:prefab_id>', methods=['DELETE'])
+def delete_prefab(prefab_id):
+    """Delete a specific prefab"""
+    try:
+        prefab = Prefab.query.get_or_404(prefab_id)
+        db.session.delete(prefab)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Prefab deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500

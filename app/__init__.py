@@ -1,4 +1,3 @@
-# __init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -14,11 +13,11 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db)
 
-    # Import and register the main blueprint
+    # Import and register blueprints
     from .routes import main
-    app.register_blueprint(main)  # Register without URL prefix
+    app.register_blueprint(main)
 
     with app.app_context():
-        db.create_all()  # Creates tables if they don’t exist
+        db.create_all()
 
     return app

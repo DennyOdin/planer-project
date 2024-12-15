@@ -77,11 +77,14 @@ Main page
 
     <ul class="list-unstyled">
         {% for task in tasks %}
-            <li class="mb-2">
-                <strong>{{ task.title }}</strong>
-                <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
-                    View/Edit Details
-                </button>
+        <li class="mb-2" id="task-{{ task.id }}">
+            <strong>{{ task.title }}</strong>
+            <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
+                View/Edit Details
+            </button>
+            <!-- Task modal code remains the same -->
+        </li>
+        
 
                 <!-- Modal for Viewing and Editing -->
                 <div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
@@ -141,7 +144,6 @@ Main page
 </div>
 
 <script>
-// Function to delete task
 function deleteTask(taskId, callback) {
     fetch(`/task/delete/${taskId}`, {
         method: 'POST',
@@ -153,8 +155,14 @@ function deleteTask(taskId, callback) {
     .then(data => {
         if (data.success) {
             console.log("Task deleted successfully!");
+            
+            // Remove the task's DOM element
+            const taskElement = document.getElementById(`task-${taskId}`);
+            if (taskElement) {
+                taskElement.remove();
+            }
+
             if (callback) callback();
-            window.location.reload();  // Force a page reload after successful deletion
         } else {
             console.error("Failed to delete task.");
             alert("Failed to delete task. Please try again.");
