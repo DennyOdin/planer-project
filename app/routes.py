@@ -257,13 +257,33 @@ def get_prefab(prefab_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 404
 
+
 @main.route('/apply_prefab/<int:prefab_id>', methods=['POST'])
 def apply_prefab(prefab_id):
-    """Apply a prefab to create tasks."""
+    """Apply a prefab to create tasks"""
     try:
+        # Retrieve the prefab
         prefab = Prefab.query.get_or_404(prefab_id)
+
+        # Create tasks from prefab
         created_tasks = []
         for prefab_task in prefab.tasks:
             task = Task(
                 title=prefab_task.title,
                 description=prefab_task.description,
+                estimated_time=prefab_task.estimated_time,
+                priority=prefab_task.priority,
+                status="to do"  # Set default status
+            )
+            db.session.add(task)
+            created_tasks.append(task)
+
+        db.session.commit()
+        return jsonify({
+            'success': True, 
+            'message': f'{len(created_tasks)} tasks created from prefab',
+            'tasks_created': len(created_tasks)
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
