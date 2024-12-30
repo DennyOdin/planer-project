@@ -1,54 +1,58 @@
 {% extends "layout.html" %}
 
-{% block title %}
-Prefabs
-{% endblock %}
+{% block title %}Prefabs{% endblock %}
 
 {% block main %}
+<!-- Main Content -->
 <h1>Prefabs</h1>
 
-
-<!-- Prefab List -->
+<!-- Prefab List Section -->
 <div class="prefab-list">
     <h2>Your Prefabs</h2>
     {% if prefabs %}
         {% for prefab in prefabs %}
-        <div class="prefab-item" id="prefab-{{ prefab.id }}">
-            <h3>{{ prefab.name }}</h3>
-            <p>{{ prefab.description or 'No description available.' }}</p>
-            <button class="apply-prefab" data-id="{{ prefab.id }}">Apply Prefab</button>
-            <button class="delete-prefab" data-id="{{ prefab.id }}">Delete Prefab</button>
-            <ul>
-                {% for task in prefab.tasks %}
-                <li>
-                    {{ task.title }} 
-                    (Priority: {{ task.priority or 'N/A' }}, 
-                    Est. Time: {{ task.estimated_time or '1' }}h)
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+            <div class="prefab-item" id="prefab-{{ prefab.id }}">
+                <h3>{{ prefab.name }}</h3>
+                <p>{{ prefab.description or 'No description available.' }}</p>
+                
+                <!-- Prefab Action Buttons -->
+                <button class="apply-prefab" data-id="{{ prefab.id }}">Apply Prefab</button>
+                <button class="delete-prefab" data-id="{{ prefab.id }}">Delete Prefab</button>
+                <button class="edit-prefab" data-id="{{ prefab.id }}">Edit Prefab</button>
+                
+                <!-- Task List -->
+                <ul>
+                    {% for task in prefab.tasks %}
+                        <li>
+                            {{ task.title }} 
+                            (Priority: {{ task.priority or 'N/A' }}, 
+                            Est. Time: {{ task.estimated_time or '1' }}h)
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endfor %}
     {% else %}
         <p>No prefabs created yet.</p>
     {% endif %}
 </div>
 
-<!-- Create Prefab Button -->
 <button id="create-prefab-button">Create New Prefab</button>
 
-<!-- Create Prefab Modal -->
+<!-- Create Modal -->
 <div id="create-prefab-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Create New Prefab</h2>
         <form id="create-prefab-form">
+            <!-- Basic Info -->
             <label for="name">Prefab Name</label>
             <input type="text" id="name" name="name" required>
 
             <label for="description">Description</label>
             <textarea id="description" name="description"></textarea>
 
+            <!-- Tasks Section -->
             <h3>Tasks</h3>
             <div id="prefab-tasks"></div>
             <button type="button" id="add-task-button">Add Task</button>
@@ -58,23 +62,62 @@ Prefabs
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Modal Handling
-    const modal = document.getElementById('create-prefab-modal');
-    const createPrefabButton = document.getElementById('create-prefab-button');
-    const closeModal = document.querySelector('.close');
+<!-- Edit Modal -->
+<div id="edit-prefab-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Edit Prefab</h2>
+        <form id="edit-prefab-form">
+            <!-- Basic Info -->
+            <label for="edit-name">Prefab Name</label>
+            <input type="text" id="edit-name" name="name" required>
 
-    createPrefabButton.onclick = () => modal.style.display = 'block';
-    closeModal.onclick = () => modal.style.display = 'none';
-    window.onclick = (event) => { 
-        if (event.target == modal) modal.style.display = 'none'; 
+            <label for="edit-description">Description</label>
+            <textarea id="edit-description" name="description"></textarea>
+
+            <!-- Tasks Section -->
+            <h3>Tasks</h3>
+            <div id="edit-prefab-tasks"></div>
+            <button type="button" id="edit-add-task-button">Add Task</button>
+
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Main Event Listener
+document.addEventListener('DOMContentLoaded', () => {
+    // Create Modal Functions
+    initializeCreateModal();
+    
+    // Edit Modal Functions
+    initializeEditModal();
+    
+    // Delete Functions
+    initializeDeleteHandlers();
+    
+    // Apply Prefab Functions
+    initializeApplyHandlers();
+});
+
+// Modal Initialization Functions
+function initializeCreateModal() {
+    const modal = document.getElementById('create-prefab-modal');
+    const createButton = document.getElementById('create-prefab-button');
+    const closeButton = modal.querySelector('.close');
+    const tasksContainer = document.getElementById('prefab-tasks');
+    const addTaskButton = document.getElementById('add-task-button');
+    const createForm = document.getElementById('create-prefab-form');
+
+    // Event Listeners
+    createButton.onclick = () => modal.style.display = 'block';
+    closeButton.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = 'none';
     };
 
-    // Adding Tasks to Prefab
-    const prefabTasksContainer = document.getElementById('prefab-tasks');
-    const addTaskButton = document.getElementById('add-task-button');
-
+    // Add Task Handler
     addTaskButton.onclick = () => {
         const taskHtml = `
             <div class="prefab-task">
@@ -90,69 +133,158 @@ document.addEventListener('DOMContentLoaded', () => {
                     </select>
                 </label>
                 <label>Estimated Time (hours):
-                    <input type="number" name="estimated_time" value="1" h="1" step="1">
+                    <input type="number" name="estimated_time" value="1" min="1" step="1">
                 </label>
                 <button type="button" class="remove-task">Remove</button>
             </div>`;
-        prefabTasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+        tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
     };
 
-    // Remove Task
-    prefabTasksContainer.addEventListener('click', (e) => {
+    // Remove Task Handler
+    tasksContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-task')) {
             e.target.closest('.prefab-task').remove();
         }
     });
 
-    // Save Prefab
-    const createPrefabForm = document.getElementById('create-prefab-form');
-    createPrefabForm.onsubmit = async (e) => {
+    // Form Submit Handler
+    createForm.onsubmit = async (e) => {
         e.preventDefault();
-        
-        const tasks = [];
-        const prefabTasks = document.querySelectorAll('.prefab-task');
-        
-        prefabTasks.forEach(taskElement => {
-            const task = {
-                title: taskElement.querySelector('input[name="title"]').value,
-                description: taskElement.querySelector('textarea[name="description"]').value,
-                priority: taskElement.querySelector('select[name="priority"]').value,
-                estimated_time: taskElement.querySelector('input[name="estimated_time"]').value
-            };
-            tasks.push(task);
+        await handleFormSubmit(createForm, 'POST', '/prefabs');
+    };
+}
+
+function initializeEditModal() {
+    const editModal = document.getElementById('edit-prefab-modal');
+    const editForm = document.getElementById('edit-prefab-form');
+    const editClose = editModal.querySelector('.close');
+    let currentEditingPrefabId = null;
+
+    // Edit Button Handlers
+    document.querySelectorAll('.edit-prefab').forEach(button => {
+        button.addEventListener('click', async () => {
+            currentEditingPrefabId = button.dataset.id;
+            await loadPrefabForEditing(currentEditingPrefabId, editModal);
         });
+    });
 
-        const prefabData = {
-            name: document.getElementById('name').value,
-            description: document.getElementById('description').value,
-            tasks: tasks
-        };
-
-        try {
-            const response = await fetch('/prefabs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(prefabData)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert('Prefab created successfully!');
-                window.location.reload();
-            } else {
-                alert('Error creating prefab: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to create prefab. Please try again.');
-        }
+    // Close Handler
+    editClose.onclick = () => {
+        editModal.style.display = 'none';
+        currentEditingPrefabId = null;
     };
 
-    // Apply Prefab
-    const applyPrefabButtons = document.querySelectorAll('.apply-prefab');
-    applyPrefabButtons.forEach(button => {
+    // Form Submit Handler
+    editForm.onsubmit = async (e) => {
+        e.preventDefault();
+        await handleFormSubmit(editForm, 'PUT', `/prefabs/${currentEditingPrefabId}`);
+    };
+}
+
+// Helper Functions
+async function loadPrefabForEditing(prefabId, modal) {
+    try {
+        const response = await fetch(`/prefabs/${prefabId}`);
+        const prefab = await response.json();
+        populateEditForm(prefab);
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load prefab details.');
+    }
+}
+
+function populateEditForm(prefab) {
+    document.getElementById('edit-name').value = prefab.name;
+    document.getElementById('edit-description').value = prefab.description;
+    
+    const tasksContainer = document.getElementById('edit-prefab-tasks');
+    tasksContainer.innerHTML = '';
+    
+    prefab.tasks.forEach(task => {
+        const taskHtml = `
+            <div class="prefab-task">
+                <input type="text" name="title" value="${task.title}" required>
+                <textarea name="description">${task.description}</textarea>
+                <label>Priority:
+                    <select name="priority">
+                        ${[1, 2, 3, 4, 5].map(p => 
+                            `<option value="${p}" ${p == task.priority ? 'selected' : ''}>${p}</option>`
+                        ).join('')}
+                    </select>
+                </label>
+                <label>Estimated Time (hours):
+                    <input type="number" name="estimated_time" value="${task.estimated_time}" min="1" step="1">
+                </label>
+                <button type="button" class="remove-task">Remove</button>
+            </div>`;
+        tasksContainer.insertAdjacentHTML('beforeend', taskHtml);
+    });
+}
+
+async function handleFormSubmit(form, method, url) {
+    const tasks = [];
+    form.querySelectorAll('.prefab-task').forEach(taskElement => {
+        tasks.push({
+            title: taskElement.querySelector('input[name="title"]').value,
+            description: taskElement.querySelector('textarea[name="description"]').value,
+            priority: taskElement.querySelector('select[name="priority"]').value,
+            estimated_time: taskElement.querySelector('input[name="estimated_time"]').value,
+        });
+    });
+
+    const prefabData = {
+        name: form.querySelector('[name="name"]').value,
+        description: form.querySelector('[name="description"]').value,
+        tasks: tasks
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(prefabData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert(`Prefab ${method === 'POST' ? 'created' : 'updated'} successfully!`);
+            window.location.reload();
+        } else {
+            alert(`Error ${method === 'POST' ? 'creating' : 'updating'} prefab: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Failed to ${method === 'POST' ? 'create' : 'update'} prefab.`);
+    }
+}
+
+function initializeDeleteHandlers() {
+    document.querySelectorAll('.delete-prefab').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const prefabId = event.target.dataset.id;
+            if (confirm('Are you sure you want to delete this prefab?')) {
+                try {
+                    const response = await fetch(`/delete_prefab/${prefabId}`, {
+                        method: 'DELETE',
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById(`prefab-${prefabId}`).remove();
+                        alert(data.message);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+        });
+    });
+}
+
+function initializeApplyHandlers() {
+    document.querySelectorAll('.apply-prefab').forEach(button => {
         button.onclick = async () => {
             const prefabId = button.getAttribute('data-id');
             try {
@@ -172,27 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     });
-    // Deleting Prefabs
-    document.querySelectorAll('.delete-prefab').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const prefabId = event.target.dataset.id;
-            if (confirm('Are you sure you want to delete this prefab?')) {
-                fetch(`/delete_prefab/${prefabId}`, {
-                    method: 'DELETE',
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById(`prefab-${prefabId}`).remove();
-                        alert(data.message);
-                    } else {
-                        alert(`Error: ${data.message}`);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-        });
-    });
-});
+}
 </script>
 {% endblock %}

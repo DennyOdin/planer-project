@@ -287,3 +287,45 @@ def apply_prefab(prefab_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+@main.route('/prefabs/<int:prefab_id>', methods=['PUT'])
+def update_prefab(prefab_id):
+    """Update an existing prefab."""
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+
+    try:
+        prefab = Prefab.query.get_or_404(prefab_id)
+        prefab.name = data.get('name', prefab.name)
+        prefab.description = data.get('description', prefab.description)
+
+        # Clear existing tasks and add updated ones
+        prefab.tasks.clear()
+        for task_data in data.get('tasks', []):
+            prefab_task = PrefabTask(
+                title=task_data.get('title', ''),
+                description=task_data.get('description', ''),
+                estimated_time=int(task_data.get('estimated_time', 1)),
+                priority=int(task_data.get('priority', 3)),
+            )
+            prefab.tasks.append(prefab_task)
+
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Prefab updated successfully.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@main.route('/prefabs/<int:prefab_id>', methods=['DELETE'])
+def delete_prefab(prefab_id):
+    """Delete a prefab."""
+    try:
+        prefab = Prefab.query.get_or_404(prefab_id)
+        db.session.delete(prefab)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Prefab deleted successfully.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
