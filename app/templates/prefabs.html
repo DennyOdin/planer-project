@@ -23,7 +23,7 @@ Prefabs
                 <li>
                     {{ task.title }} 
                     (Priority: {{ task.priority or 'N/A' }}, 
-                    Est. Time: {{ task.estimated_time or '1' }} min)
+                    Est. Time: {{ task.estimated_time or '1' }}h)
                 </li>
                 {% endfor %}
             </ul>
@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <option value="5">5 (Highest)</option>
                     </select>
                 </label>
-                <label>Estimated Time (minutes):
-                    <input type="number" name="estimated_time" value="1" min="1" step="1">
+                <label>Estimated Time (hours):
+                    <input type="number" name="estimated_time" value="1" h="1" step="1">
                 </label>
                 <button type="button" class="remove-task">Remove</button>
             </div>`;
