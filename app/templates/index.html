@@ -82,96 +82,61 @@ Main page
             <button type="button" class="btn btn-primary btn-sm ml-2" data-toggle="modal" data-target="#taskModal{{ task.id }}">
                 View/Edit Details
             </button>
-            <!-- Task modal code remains the same -->
-        </li>
-        
 
-                <!-- Modal for Viewing and Editing -->
-                <div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <form action="{{ url_for('main.edit_task', task_id=task.id) }}" method="POST">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="taskModalLabel{{ task.id }}">{{ task.title }}</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+            <!-- Modal for Viewing and Editing -->
+            <div class="modal fade" id="taskModal{{ task.id }}" tabindex="-1" role="dialog" aria-labelledby="taskModalLabel{{ task.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form action="{{ url_for('main.edit_task', task_id=task.id) }}" method="POST">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="taskModalLabel{{ task.id }}">{{ task.title }}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="title">Title:</label>
+                                    <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
                                 </div>
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="title">Title:</label>
-                                        <input type="text" name="title" class="form-control" value="{{ task.title }}" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="description">Description:</label>
-                                        <textarea name="description" class="form-control">{{ task.description or '' }}</textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="due_date">Due Date:</label>
-                                        <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="estimated_time">Estimated Time (hours):</label>
-                                        <input type="number" name="estimated_time" class="form-control" value="{{ task.estimated_time or '' }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="priority">Priority:</label>
-                                        <input type="number" name="priority" class="form-control" min="1" max="5" value="{{ task.priority or '' }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="status">Status:</label>
-                                        <select name="status" class="form-control">
-                                            <option value="to do" {% if task.status == 'to do' %}selected{% endif %}>To Do</option>
-                                            <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>Doing</option>
-                                            <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
-                                        </select>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="description">Description:</label>
+                                    <textarea name="description" class="form-control">{{ task.description or '' }}</textarea>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    
-                                    <!-- Form for Deletion -->
-                                    <button type="button" class="btn btn-danger" onclick="deleteTask({{ task.id }}, () => $('#taskModal{{ task.id }}').modal('hide'))">Delete Task</button>
+                                <div class="form-group">
+                                    <label for="due_date">Due Date:</label>
+                                    <input type="date" name="due_date" class="form-control" value="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}">
                                 </div>
-                            </form>
-                        </div>
+                                <div class="form-group">
+                                    <label for="estimated_time">Estimated Time (hours):</label>
+                                    <input type="number" name="estimated_time" class="form-control" value="{{ task.estimated_time or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="priority">Priority:</label>
+                                    <input type="number" name="priority" class="form-control" min="1" max="5" value="{{ task.priority or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="status">Status:</label>
+                                    <select name="status" class="form-control">
+                                        <option value="to do" {% if task.status == 'to do' %}selected{% endif %}>To Do</option>
+                                        <option value="doing" {% if task.status == 'doing' %}selected{% endif %}>Doing</option>
+                                        <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                <!-- Form for Deletion -->
+                                <button type="button" class="btn btn-danger" onclick="fetch('/task/delete/{{ task.id }}', {method: 'POST'}).then(() => { $('#taskModal{{ task.id }}').modal('hide'); document.getElementById('task-{{ task.id }}').remove(); })">Delete Task</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </li>
+            </div>
+        </li>
         {% endfor %}
     </ul>
 </div>
-
-<script>
-function deleteTask(taskId, callback) {
-    fetch(`/task/delete/${taskId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            console.log("Task deleted successfully!");
-            
-            // Remove the task's DOM element
-            const taskElement = document.getElementById(`task-${taskId}`);
-            if (taskElement) {
-                taskElement.remove();
-            }
-
-            if (callback) callback();
-        } else {
-            console.error("Failed to delete task.");
-            alert("Failed to delete task. Please try again.");
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred. Please try again.");
-    });
-}
-</script>
 {% endblock %}
