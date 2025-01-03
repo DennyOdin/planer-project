@@ -1,10 +1,20 @@
 /* ==================================================
    General Styles
 ================================================== */
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --background-color: #f8fafc;
+    --surface-color: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+}
+
 body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    background-color: #f3f4f6;
-    color: #333;
+    background-color: var(--background-color);
+    color: var(--text-primary);
     margin: 0;
     padding: 20px;
 }
@@ -18,102 +28,120 @@ body {
 ================================================== */
 h1, h2, h3 {
     font-weight: 600;
-    color: #222;
+    color: var(--text-primary);
     margin-bottom: 15px;
 }
 
-h1 {
-    font-size: 2em;
-}
-
-h2 {
-    font-size: 1.5em;
-    margin-top: 20px;
-}
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; margin-top: 20px; }
 
 /* ==================================================
    Navbar
 ================================================== */
 .navbar {
-    background-color: #0056b3;
+    background-color: var(--surface-color);
     padding: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand, .navbar-nav .nav-link {
-    color: #000000 !important;
+    color: var(--text-primary) !important;
     font-weight: 500;
 }
 
 .navbar-brand:hover, .navbar-nav .nav-link:hover {
-    color: #d1e7ff !important;
-    text-decoration: underline;
+    color: var(--primary-color) !important;
 }
 
 /* ==================================================
-   Buttons
+   Calendar Container and Grid
 ================================================== */
-.btn {
-    font-size: 0.9em;
-    padding: 8px 15px;
-    border-radius: 20px;
+.calendar-container {
+    display: flex;
+    height: calc(100vh - 100px);
+    gap: 20px;
+    padding: 20px;
 }
 
-.btn-primary {
-    background-color: #4A90E2;
-    border: none;
+/* Calendar grid container */
+.calendar-grid {
+    flex-grow: 1;
+    display: grid;
+    /* 80px for time column + 7 equal columns for days */
+    grid-template-columns: 80px repeat(7, minmax(0, 1fr));
+    grid-auto-rows: min-content;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    overflow: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.btn-primary:hover {
-    background-color: #357ABD;
+.header-row,
+.time-row {
+    display: contents;
 }
 
-.btn-danger {
-    background-color: #E74C3C;
-    border: none;
-}
-
-/* ==================================================
-   Containers
-================================================== */
-.container {
-    max-width: 1200px;
-    margin: auto;
-}
-
-.task-list-container {
-    width: 250px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 15px;
-    overflow-y: auto;
-    max-height: 100%;
-}
-
-.task-list-container h4 {
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* ==================================================
-   Task Item
-================================================== */
-.task-item {
-    position: absolute; /* Removed redundancy */
-    left: 0;
-    right: 0;
-    background-color: #f0f0f0;
-    padding: 5px;
-    border-radius: 4px;
-    overflow: hidden;
-    width: 100%; /* Ensures full width */
+/* Calendar Headers */
+.time-slot-header, 
+.time-slot {
+    width: 80px;
+    text-align: center;
+    font-weight: 500;
+    padding: 10px;
+    background-color: #f8fafc;
+    border-right: 1px solid var(--border-color);
+    color: var(--text-secondary);
     box-sizing: border-box;
 }
 
+.weekday-header {
+    background-color: #f8fafc;
+    padding: 12px;
+    font-weight: 600;
+    text-align: center;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Calendar Slots */
+.calendar-slot {
+    position: relative;
+    border: 1px solid var(--border-color);
+    min-height: 50px;
+    background-color: var(--surface-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==================================================
+   Task Items
+================================================== */
+.task-item {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: move;
+    font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    word-wrap: break-word;
+    white-space: normal;
+    z-index: 10;
+    border: 2px solid black;
+}
+
+
 .task-item:hover {
-    background-color: #dceeff;
+    background-color: var(--primary-hover);
 }
 
 .task-item:active {
@@ -126,21 +154,72 @@ h2 {
 }
 
 .resize-handle {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    cursor: ns-resize;
-    z-index: 20;
+    display: none;
+}
+
+
+/* ==================================================
+   Task List Container
+================================================== */
+.task-list-container {
+    width: 250px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+    max-height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.task-list-container h4 {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+#unassigned-tasks .task-item {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* ==================================================
+   Modal Styles
+================================================== */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 15px 20px;
+}
+
+.form-control {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
 }
 
 /* ==================================================
    Drag and Drop States
 ================================================== */
 .drag-over {
-    background-color: #e9ecef;
+    background-color: #f1f5f9;
+    border: 2px dashed var(--primary-color);
 }
 
 .dragging {
@@ -148,170 +227,64 @@ h2 {
 }
 
 /* ==================================================
-   Calendar
+   Buttons
 ================================================== */
-.calendar-container {
-    display: flex;
-    height: 100vh;
-    gap: 20px;
-    padding: 20px;
-}
-
-.calendar-grid {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: auto repeat(7, 1fr);
-    grid-auto-rows: min-content;
-    border: 1px solid #ddd;
-    background: #fff;
-    overflow: auto;
-}
-
-.header-row,
-.time-row {
-    display: contents;
-}
-
-.time-slot-header, .time-slot {
-    width: 80px;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-right: 1px solid #ddd;
-}
-
-.weekday-header {
-    background-color: #f8f9fa;
-    padding: 10px;
-    font-weight: bold;
-    text-align: center;
-    border-right: 1px solid #ddd;
-}
-
-.calendar-slot {
-    position: relative;
-    border: 1px solid #ddd;
-}
-
-.multi-slot-task {
-    position: absolute !important;
-    left: 0;
-    right: 0;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 10;
-    background-color: #4A90E2;
-    color: white;
-    padding: 5px;
+.btn {
+    font-size: 0.9em;
+    padding: 8px 15px;
     border-radius: 4px;
-    overflow: hidden;
+    font-weight: 500;
 }
 
-.multi-slot-task:hover {
-    background-color: #357ABD;
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
 }
 
-.occupied-by-task {
-    pointer-events: none;
-}
-
-.calendar-slot .multi-slot-task {
-    position: absolute !important;
-    top: 0;
-    margin: 0;
-}
-
-.calendar-slot.occupied-by-task {
-    pointer-events: none;
-    background-color: rgba(74, 144, 226, 0.1);
+.btn-primary:hover {
+    background-color: var(--primary-hover);
 }
 
 /* ==================================================
-   Quadrant View
+   Responsive Design
 ================================================== */
-.quadrant-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.quadrant {
-    display: flex;             /* Arrange items flexibly */
-    flex-direction: column;    /* Stack items vertically */
-    align-items: flex-start;   /* Align items to the left */
-    overflow: hidden;          /* Prevent overflowing elements */
-}
-
-
-.urgent-important {
-    background-color: #776452;
-}
-
-.urgent-not-important {
-    background-color: #98867B;
-}
-
-.not-urgent-important {
-    background-color: #D0C6BD;
-}
-
-.not-urgent-not-important {
-    background-color: #EFEDEA;
-}
-
-.quadrant h3 {
-    color: #332820; /* Fixed color formatting */
-}
-
-.quadrant .task-item {
-    position: relative; /* Prevent absolute positioning from stretching */
-    width: auto;       /* Ensure the item respects its container */
-    max-width: 100%;   /* Prevent overflow within the quadrant */
-    margin: 5px 0;     /* Add spacing between items */
-}
-
-
-.quadrant .task-item:hover {
-    background-color: #dceeff;
-}
+@media (max-width: 768px) {
+    .calendar-container {
+        flex-direction: column;
+    }
     
+    .task-list-container {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
 
-/* ==================================================
-   Deletion Zone
-================================================== */
+/* Deletion Zone Styling */
 .deletion-zone {
-    margin-top: 20px;
-    padding: 10px;
-    border: 2px dashed #999;
+    width: 200px;
+    height: 200px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+    background-color: var(--surface-color);
+    transition: all 0.3s ease;
+}
+
+.deletion-zone.drag-over {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+}
+
+.deletion-zone-content {
     text-align: center;
-    background-color: #f9f9f9;
+    color: var(--text-secondary);
 }
 
-/* ==================================================
-   Task List
-================================================== */
-.task-list {
-    min-height: 100px;
-}
-
-/* ==================================================
-   Unassigned Tasks
-================================================== */
-#unassigned-tasks .task-item {
-    position: relative;
-    width: 100%;
+.deletion-zone-content i {
+    font-size: 2em;
     margin-bottom: 10px;
-}
-
-
-
-.calendar-slot .task-item,
-.task-list .task-item {
-    position: absolute; /* Restrict to calendar or task list */
-}
-
-.quadrant .task-item {
-    position: relative; /* Use relative positioning in quadrant */
+    display: block;
 }

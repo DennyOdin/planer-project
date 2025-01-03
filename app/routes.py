@@ -72,14 +72,13 @@ def edit_task(task_id):
     flash("Task updated successfully!", "success")
     return redirect(url_for('main.index'))
 
-@main.route('/task/delete/<int:task_id>', methods=['POST'])
+@main.route('/task/delete/<int:task_id>', methods=['DELETE', 'POST'])  # Allow both methods
 def delete_task(task_id):
     """Delete a task from the database."""
     task = Task.query.get_or_404(task_id)
     db.session.delete(task)
     db.session.commit()
-    flash("Task deleted successfully!", "success")
-    return jsonify({'success': True}), 200
+    return jsonify({'success': True}), 200  # Remove flash as it's not needed for AJAX  
 
 # ------------------------ Quadrant View Routes ------------------------
 
